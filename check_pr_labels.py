@@ -62,7 +62,6 @@ print(f'Pull request number: {pr_number}')
 print(f'github_ref: {github_ref}')
 
 
-# Create a pull request object
 pr = repo.get_pull(pr_number)
 
 # Check if the PR comes from a fork. If so, the trigger must be 'pull_request_target'.
@@ -71,35 +70,31 @@ if pr.head.repo.full_name != pr.base.repo.full_name:
     if github_event_name != 'pull_request_target':
         raise Exception('PRs from forks are only supported when trigger on "pull_request_target"')
 
-# Get the pull request labels
+
 pr_labels = pr.get_labels()
 
-# Get the list of reviews
+
 pr_reviews = pr.get_reviews()
 
-# This is a list of valid label found in the pull request
 pr_has_valid_label = None
-# Check which of the label in the pull request, are in the
-# list of valid labels
 for label in pr_labels:
     if label.name in valid_labels:
         pr_has_valid_label = True
 
 if pr_has_valid_label:
-    # If there were valid labels, create a pull request review, approving it
     print(f'Success! This pull request contains the following valid labels: {valid_labels}')
     repo.get_commit(sha=pr.head.sha).create_status(
         state="success",
         target_url="https://www.application.com",
         description="Label check succeded",
         context="OCA Check")
+    exit(0)
 else:
-    # If there were not valid labels, then create a pull request review, requesting changes
     print(f'Error! This pull request does not contain any of the valid labels: {valid_labels}')
     repo.get_commit(sha=pr.head.sha).create_status(
         state="failure",
         target_url="https://www.application.com",
         description="Label check failed",
         context="OCA Check")
-
+    exit(1)
 
