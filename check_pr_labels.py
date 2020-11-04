@@ -78,10 +78,10 @@ pr_reviews = pr.get_reviews()
 
 pr_has_valid_label = None
 for label in pr_labels:
+    print(f'pr label name {label.name}')
     if label.name in valid_labels:
         pr_has_valid_label = True
         
-print(f'Success! This pull request contains the following valid labels: {pr_labels}')
 
 if pr_has_valid_label:
     print(f'Success! This pull request contains the following valid labels: {valid_labels}')
