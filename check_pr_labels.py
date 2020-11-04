@@ -78,63 +78,30 @@ pr_labels = pr.get_labels()
 pr_reviews = pr.get_reviews()
 
 # This is a list of valid label found in the pull request
-pr_valid_labels = []
-
+pr_has_valid_label = None
 # Check which of the label in the pull request, are in the
 # list of valid labels
 for label in pr_labels:
     if label.name in valid_labels:
-        pr_valid_labels.append(label.name)
+        pr_has_valid_label = True
 
-# Look for the last review done by this module. The variable
-# 'was_approved' will be set to True/False if the last review
-# done was approved/requested changes; if there was not a
-# previous review the variable will be set to 'None'.
-was_approved = None
-for review in pr_reviews.reversed:
-    # Reviews done by this modules uses a login name
-    # 'github-actions[bot]'
-    if review.user.login == 'github-actions[bot]':
-        if review.state == 'APPROVED':
-            # The last review was approved
-            was_approved = True
-        elif review.state == 'CHANGES_REQUESTED':
-            # The last review requested changes
-            was_approved = False
-
-        # Break this loop after the last review is found.
-        # If no review was done, 'was_approved' will remain
-        # as 'None'.
-        break
-
-# Check if there were at least one valid label
-# Note: In both cases we exit without an error code and let the check to succeed. This is because GitHub
-# workflow will create different checks for different trigger conditions. So, adding a missing label won't
-# clear the initial failed check during the PR creation, for example.
-# Instead, we will create a pull request review, marked with 'REQUEST_CHANGES' when no valid label was found.
-# This will prevent merging the pull request until a valid label is added, which will trigger this check again
-# and will create a new pull request review, but in this case marked as 'APPROVE'
-# Note 2: We check for the status of the previous review done by this module. If a previous review exists, and
-# it state and the current state are the same, a new request won't be generated.
-
-if pr_valid_labels:
+if pr_has_valid_label:
     # If there were valid labels, create a pull request review, approving it
-    print(f'Success! This pull request contains the following valid labels: {pr_valid_labels}')
-
-    # If the last review done was approved, then don't approved it again
-    if was_approved:
-        print('The last review was already approved')
-    else:
-        pr.create_review(event = 'APPROVE')
+    print(f'Success! This pull request contains the following valid labels: {valid_labels}')
+    
+    repo.get_commit(sha=pr.head.sha).create_status(
+        state="success",
+        target_url="https://www.application.com",
+        description="Label check succeded",
+        context="OCA Check")
 else:
     # If there were not valid labels, then create a pull request review, requesting changes
     print(f'Error! This pull request does not contain any of the valid labels: {valid_labels}')
 
-    # If the last review done requested changes, then don't request changes again.
-    # 'was_approved' can be 'None', so here we need to explicitly compare against 'False'.
-    if was_approved == False:
-        print('The last review already requested changes')
-    else:
-        pr.create_review(body = 'This pull request does not contain a valid label. '
-                                f'Please add one of the following labels: `{valid_labels}`',
-                         event = 'REQUEST_CHANGES')
+        repo.get_commit(sha=pr.head.sha).create_status(
+        state="failure",
+        target_url="https://www.application.com",
+        description="Label check failed",
+        context="OCA Check")
+
+
