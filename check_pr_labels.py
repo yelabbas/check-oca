@@ -80,6 +80,8 @@ pr_has_valid_label = None
 for label in pr_labels:
     if label.name in valid_labels:
         pr_has_valid_label = True
+        
+print(f'Success! This pull request contains the following valid labels: {pr_labels}')
 
 if pr_has_valid_label:
     print(f'Success! This pull request contains the following valid labels: {valid_labels}')
