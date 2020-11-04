@@ -1,0 +1,19 @@
+on:
+  pull_request_target:
+   branches: [ main ]
+   types: [opened, labeled, unlabeled, synchronize]
+
+jobs:
+  check_pr_labels:
+    runs-on: ubuntu-latest
+    name: Check PR has valid labels
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Check PR Labels
+        uses: ./
+        id: check-pr-labels
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          valid-labels: 'Label'
+          pull-request-number: '${{ github.event.pull_request.number }}'
