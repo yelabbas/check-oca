@@ -88,7 +88,6 @@ for label in pr_labels:
 if pr_has_valid_label:
     # If there were valid labels, create a pull request review, approving it
     print(f'Success! This pull request contains the following valid labels: {valid_labels}')
-    
     repo.get_commit(sha=pr.head.sha).create_status(
         state="success",
         target_url="https://www.application.com",
@@ -97,8 +96,7 @@ if pr_has_valid_label:
 else:
     # If there were not valid labels, then create a pull request review, requesting changes
     print(f'Error! This pull request does not contain any of the valid labels: {valid_labels}')
-
-        repo.get_commit(sha=pr.head.sha).create_status(
+    repo.get_commit(sha=pr.head.sha).create_status(
         state="failure",
         target_url="https://www.application.com",
         description="Label check failed",
