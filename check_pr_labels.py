@@ -80,7 +80,7 @@ for label in pr_labels:
 
 
 while pr.merge_commit_sha is None:
-     print(f'waiting 5s to get a merge  commit sha, actual one is: {pr.merge_commit_sha}')
+    print(f'waiting 5s to get a merge  commit sha, actual one is: {pr.merge_commit_sha}')
     time.wait(5)
     pr = repo.get_pull(pr_number)
 
