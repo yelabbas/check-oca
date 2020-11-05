@@ -64,11 +64,6 @@ print(f'github_ref: {github_ref}')
 
 pr = repo.get_pull(pr_number)
 
-# Check if the PR comes from a fork. If so, the trigger must be 'pull_request_target'.
-# Otherwise raise an exception here.
-if pr.head.repo.full_name != pr.base.repo.full_name:
-    if github_event_name != 'pull_request_target':
-        raise Exception('PRs from forks are only supported when trigger on "pull_request_target"')
 
 
 pr_labels = pr.get_labels()
