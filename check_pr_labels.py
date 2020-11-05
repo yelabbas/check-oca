@@ -3,6 +3,7 @@
 import os
 import sys
 import re
+import time
 from github import Github
 
 def get_env_var(env_var_name, echo_value=False):
@@ -76,22 +77,45 @@ for label in pr_labels:
     print(f'pr label name {label.name}')
     if label.name in valid_labels:
         pr_has_valid_label = True
+
+
+while pr.merge_commit_sha is None:
+     print(f'waiting 5s to get a merge  commit sha, actual one is: {pr.merge_commit_sha}')
+    time.wait(5)
+    pr = repo.get_pull(pr_number)
+
         
 
 if pr_has_valid_label:
     print(f'Success! This pull request contains the following valid labels: {valid_labels}')
-    repo.get_commit(sha=pr.head.sha).create_status(
-        state="success",
-        target_url="https://www.application.com",
-        description="Label check succeded",
-        context="OCA Check")
+    if github_event_name == 'pull_request_target':
+        repo.get_commit(sha=pr.merge_commit_sha).create_status(
+           state="success",
+           target_url="https://www.application.com",
+           description="Label check succeded",
+           context="OCA Check")
+    else:
+        repo.get_commit(sha=pr.head.sha).create_status(
+            state="success",
+            target_url="https://www.application.com",
+            description="Label check succeded",
+            context="OCA Check")
     exit(0)
 else:
     print(f'Error! This pull request does not contain any of the valid labels: {valid_labels}')
-    repo.get_commit(sha=pr.head.sha).create_status(
-        state="failure",
-        target_url="https://www.application.com",
-        description="Label check failed",
-        context="OCA Check")
+    print(f' This pull request: {pr} {pr.head}')
+
+    if github_event_name == 'pull_request_target':
+        repo.get_commit(sha=pr.merge_commit_sha).create_status(
+           state="success",
+           target_url="https://www.application.com",
+           description="Label check succeded",
+           context="OCA Check")
+    else:
+        repo.get_commit(sha=pr.head.sha).create_status(
+            state="success",
+            target_url="https://www.application.com",
+            description="Label check succeded",
+            context="OCA Check")
     exit(1)
 
