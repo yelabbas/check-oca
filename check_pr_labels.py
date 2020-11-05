@@ -89,12 +89,14 @@ while pr.merge_commit_sha is None:
 if pr_has_valid_label:
     print(f'Success! This pull request contains the following valid labels: {valid_labels}')
     if github_event_name == 'pull_request_target':
+        print(f'valid PR: This pull request is a fork its merge commit sha:  {pr.merge_commit_sha}')
         repo.get_commit(sha=pr.merge_commit_sha).create_status(
            state="success",
            target_url="https://www.application.com",
            description="Label check succeded",
            context="OCA Check")
     else:
+        print(f'valid PR: This pull request is a not a fork its HEAD commit sha:  {pr.head.sha}')
         repo.get_commit(sha=pr.head.sha).create_status(
             state="success",
             target_url="https://www.application.com",
@@ -103,17 +105,18 @@ if pr_has_valid_label:
     exit(0)
 else:
     print(f'Error! This pull request does not contain any of the valid labels: {valid_labels}')
-    print(f' This pull request: {pr} {pr.head}')
 
     if github_event_name == 'pull_request_target':
+        print(f'Not valid PR: This pull request is a fork its merge commit sha:  {pr.merge_commit_sha}')
         repo.get_commit(sha=pr.merge_commit_sha).create_status(
-           state="success",
+           state="failure",
            target_url="https://www.application.com",
            description="Label check succeded",
            context="OCA Check")
     else:
+        print(f'Not valid PR: This pull request is a not a fork its HEAD commit sha:  {pr.head.sha}')
         repo.get_commit(sha=pr.head.sha).create_status(
-            state="success",
+            state="failre",
             target_url="https://www.application.com",
             description="Label check succeded",
             context="OCA Check")
