@@ -4,6 +4,7 @@ import os
 import sys
 import re
 from github import Github
+import requests as reqs 
 
 def get_env_var(env_var_name, echo_value=False):
     value=os.environ.get(env_var_name)
@@ -15,6 +16,14 @@ def get_env_var(env_var_name, echo_value=False):
         print(f"{env_var_name} = {value}")
 
     return value
+
+def check_oca(github_username):
+    import requests as reqs 
+    response = reqs.get('https://jsonplaceholder.typicode.com/todos/1') 
+    print(response.status_code) 
+    if response.status_code == 200
+        return True
+    return False
 
 # Check if the number of input arguments is correct
 if len(sys.argv) != 4:
@@ -55,15 +64,31 @@ print(f'Pull request number: {pr_number}')
 
 
 pr = repo.get_pull(pr_number)
-pr_labels = pr.get_labels()
+pr_commits = pr.get_commits()
 
-pr_has_valid_label = None
-for label in pr_labels:
-    print(f'pr label name {label.name}')
-    if label.name in valid_labels:
-        pr_has_valid_label = True
+pr_mergeable = None
 
-if pr_has_valid_label:
+pr_authors = set()
+pattern = re.compile(".*@oracle.com")
+
+
+for commit in pr_commits:
+    if not (pattern.match(commit.author)):
+        print(f'pr commit name {commit.sha} author : {commit.author}')
+        pr_authors.add(commit.author)
+
+verified = 0
+for author in pr_authors:
+    if not check_oca(commit.author.login):
+        print(f'author : {commit.author} (login: "{commit.author.login}") doesn''t have an approved OCA')
+        #pr_mergeable = False
+    else
+        verified += 1
+
+if len(author) > 0 and len(author) == verified:
+    pr_mergeable = True
+
+if pr_mergeable:
     exit(0)
 else:
     exit(1)
