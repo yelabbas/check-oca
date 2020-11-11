@@ -5,6 +5,8 @@ import sys
 import re
 from github import Github
 import requests as reqs 
+import constants
+
 
 def get_env_var(env_var_name, echo_value=False):
     value=os.environ.get(env_var_name)
@@ -30,13 +32,40 @@ def check_oca(github_username):
         return True
     return False
 
+def control_and_update_labels(repo,pr,pr_mergeable):
+    pr_labels = pr.get_labels()
+    print(pr_mergeable)
+    if pr_mergeable is False or pr_mergeable is None:
+        if any(x for x in pr_labels if x.name == constants.SIGNED): 
+            print(f"Action will remove label : {constants.SIGNED}")
+            pr.remove_from_labels(get_or_create_label(repo,constants.SIGNED,constants.SIGNED_COLOR))
+        if not any(x for x in pr_labels if x.name == constants.NOT_SIGNED): 
+            print(f"Action will add label : {constants.NOT_SIGNED}")
+            pr.add_to_labels(get_or_create_label(repo,constants.NOT_SIGNED,constants.NOT_SIGNED_COLOR))
+
+    else:
+        if any(x for x in pr_labels if x.name == constants.NOT_SIGNED): 
+            print(f"Action will remove label : {constants.NOT_SIGNED}")
+            pr.remove_from_labels(get_or_create_label(repo,constants.NOT_SIGNED,constants.NOT_SIGNED_COLOR))
+        if not any(x for x in pr_labels if x.name == constants.SIGNED): 
+            print(f"Action will add label : {constants.SIGNED}")
+            pr.add_to_labels(get_or_create_label(repo,constants.SIGNED,constants.SIGNED_COLOR))
+
+
+def get_or_create_label(repo,name,color):
+    labels = [label for label in repo.get_labels()]
+    if any(filter(lambda l:l.name == name, labels)):
+        new_label = repo.get_label(name)
+    else:
+        new_label = repo.create_label(name, color)
+    return new_label
+
 def check_pr(repo,number):
     pr = repo.get_pull(number)
     pr_commits = pr.get_commits()
     pr_mergeable = None
     pr_authors = set()
     pattern = re.compile(".*@oracle.com")
-
     for commit in pr_commits:
         #print(commit)
         #print(commit.author.id)
@@ -60,6 +89,8 @@ def check_pr(repo,number):
     if len(pr_authors) > 0 and len(pr_authors) == verified:
         pr_mergeable = True
 
+
+    control_and_update_labels(repo,pr,pr_mergeable)
     return pr_mergeable
 
 

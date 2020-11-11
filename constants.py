@@ -1,0 +1,4 @@
+SIGNED = 'OCA signed'
+SIGNED_COLOR = '34d058'
+NOT_SIGNED = 'OCA not signed'
+NOT_SIGNED_COLOR = 'd73a49'
