@@ -25,16 +25,19 @@ def check_oca(github_username):
     if github_username is None or pattern.match(github_username):
         print("ERROR : github username empty!")
         return False
-    requestUrl = "https://oca.opensource.oracle.com/api/v1/members/status?username=" + github_username 
+    requestUrl = constants.OCA_REST_API_URL + '/members/status?username=' + github_username 
     response = reqs.get(requestUrl) 
     print(response.status_code) 
     if response.status_code == 200:
         return True
-    return False
+    elif response.status_code == 404:
+        return False
+    else:
+        print(f"ERROR : request to check OCA status returned unexpected status :{response.status_code}!")
+        return False
 
 def control_and_update_labels(repo,pr,pr_mergeable):
     pr_labels = pr.get_labels()
-    print(pr_mergeable)
     if pr_mergeable is False or pr_mergeable is None:
         if any(x for x in pr_labels if x.name == constants.SIGNED): 
             print(f"Action will remove label : {constants.SIGNED}")
@@ -42,7 +45,6 @@ def control_and_update_labels(repo,pr,pr_mergeable):
         if not any(x for x in pr_labels if x.name == constants.NOT_SIGNED): 
             print(f"Action will add label : {constants.NOT_SIGNED}")
             pr.add_to_labels(get_or_create_label(repo,constants.NOT_SIGNED,constants.NOT_SIGNED_COLOR))
-
     else:
         if any(x for x in pr_labels if x.name == constants.NOT_SIGNED): 
             print(f"Action will remove label : {constants.NOT_SIGNED}")
