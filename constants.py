@@ -1,5 +1,5 @@
 SIGNED = 'OCA Approved'
 SIGNED_COLOR = '34d058'
-NOT_SIGNED = 'OCA not signed'
+NOT_SIGNED = 'OCA Required'
 NOT_SIGNED_COLOR = 'd73a49'
 OCA_REST_API_URL='https://oca.opensource.oracle.com/api/v1'
