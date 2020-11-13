@@ -42,13 +42,13 @@ def control_and_update_labels(repo,pr,pr_mergeable):
         if any(x for x in pr_labels if x.name == constants.SIGNED): 
             print(f"Action will remove label : {constants.SIGNED}")
             pr.remove_from_labels(get_or_create_label(repo,constants.SIGNED,constants.SIGNED_COLOR))
-        #if not any(x for x in pr_labels if x.name == constants.NOT_SIGNED): 
-        #    print(f"Action will add label : {constants.NOT_SIGNED}")
-        #    pr.add_to_labels(get_or_create_label(repo,constants.NOT_SIGNED,constants.NOT_SIGNED_COLOR))
+        if not any(x for x in pr_labels if x.name == constants.NOT_SIGNED): 
+            print(f"Action will add label : {constants.NOT_SIGNED}")
+            pr.add_to_labels(get_or_create_label(repo,constants.NOT_SIGNED,constants.NOT_SIGNED_COLOR))
     else:
-        #if any(x for x in pr_labels if x.name == constants.NOT_SIGNED): 
-        #    print(f"Action will remove label : {constants.NOT_SIGNED}")
-        #    pr.remove_from_labels(get_or_create_label(repo,constants.NOT_SIGNED,constants.NOT_SIGNED_COLOR))
+        if any(x for x in pr_labels if x.name == constants.NOT_SIGNED): 
+            print(f"Action will remove label : {constants.NOT_SIGNED}")
+            pr.remove_from_labels(get_or_create_label(repo,constants.NOT_SIGNED,constants.NOT_SIGNED_COLOR))
         if not any(x for x in pr_labels if x.name == constants.SIGNED): 
             print(f"Action will add label : {constants.SIGNED}")
             pr.add_to_labels(get_or_create_label(repo,constants.SIGNED,constants.SIGNED_COLOR))
