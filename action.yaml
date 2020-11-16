@@ -13,4 +13,3 @@ runs:
   args:
     - ${{ inputs.github-token }}
     - ${{ inputs.pull-request-number }}
-    - ${{ inputs.not-signed-msg }}
